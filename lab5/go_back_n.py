@@ -8,32 +8,30 @@ LOSS_PROBABILITY = 0.2  # Probability that a frame is lost
 
 def simulate_go_back_n(total_frames, window_size, loss_prob):
     base = 0
-    next_seq_num = 0
 
     while base < total_frames:
-        # Send frames in window
         end = min(base + window_size, total_frames)
         print(f"Sending frames {base} to {end - 1}")
         time.sleep(1)
 
-        # Simulate sending and receiving ACKs
-        loss_index = -1  # No loss initially
+        loss_index = -1  # Assume no loss initially
 
+        # Simulate frame transmission
         for i in range(base, end):
             if random.random() < loss_prob:
-                print(f"Frame {i} lost, retransmitting frames {i} to {end - 1}\n")
+                print(f"❌ Frame {i} lost! Retransmitting from frame {i}...\n")
                 loss_index = i
-                break  # Simulate Go-Back-N: stop and go back
+                break
 
         if loss_index != -1:
-            # Retransmit from the lost frame
+            # Retransmit only from the lost frame onward
+            base = loss_index
             time.sleep(1)
-            continue  # base stays the same, resend window
+            continue  # resend from lost frame
 
         # All frames received successfully
-        print(f"ACK {end - 1} received\n")
-        base = end  # Slide window
+        print(f"✅ ACK {end - 1} received. Sliding window.\n")
+        base = end  # Move window forward
 
 if __name__ == "__main__":
-    # You can customize these values if needed
     simulate_go_back_n(TOTAL_FRAMES, WINDOW_SIZE, LOSS_PROBABILITY)
